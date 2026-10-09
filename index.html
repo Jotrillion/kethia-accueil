@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f6f3">
+  <title>Kethia Accueil — Gestion des visites</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #202b27;
+      --muted: #76817b;
+      --line: #e7ebe6;
+      --canvas: #f4f6f3;
+      --paper: #fff;
+      --green: #176b51;
+      --green-dark: #12533f;
+      --green-pale: #e8f3ed;
+      --coral: #e36e59;
+      --coral-pale: #fff0ec;
+      --gold: #b87818;
+      --gold-pale: #fff4df;
+      --shadow: 0 18px 60px rgba(28, 46, 38, .12);
+      font-family: "DM Sans", "Trebuchet MS", sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; background: var(--canvas); color: var(--ink); }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid #9bcab4; outline-offset: 2px; }
+    .app { min-height: 100vh; display: grid; grid-template-columns: 248px minmax(0, 1fr); }
+    .sidebar { background: #18352c; color: #fff; padding: 25px 16px 19px; display: flex; flex-direction: column; min-height: 100vh; }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 2px 11px 34px; }
+    .brand-mark { width: 35px; height: 35px; display: grid; place-items: center; background: #d1ed88; border-radius: 11px; color: #18352c; }
+    .brand-mark svg { width: 22px; height: 22px; }
+    .brand-name { font-size: 17px; letter-spacing: .06em; font-weight: 700; }
+    .brand-name small { display: block; color: #a9bdb4; font-weight: 400; font-size: 10px; letter-spacing: .12em; margin-top: 2px; }
+    .nav-label { padding: 0 12px 9px; color: #99b0a5; font-size: 10px; text-transform: uppercase; letter-spacing: .13em; }
+    .nav { display: grid; gap: 5px; }
+    .nav-link { border: 0; color: #c4d1ca; background: transparent; border-radius: 8px; width: 100%; min-height: 43px; display: flex; align-items: center; gap: 12px; padding: 0 12px; text-align: left; font-size: 13px; transition: background .18s, color .18s; }
+    .nav-link:hover { background: #25483c; color: #fff; }
+    .nav-link.active { color: #fff; background: #2b5142; box-shadow: inset 3px 0 #c9e878; }
+    .nav-icon { width: 18px; height: 18px; flex: 0 0 18px; }
+    .nav-count { margin-left: auto; background: #3d6553; color: #d8e5de; border-radius: 20px; min-width: 22px; padding: 2px 6px; text-align: center; font-size: 10px; }
+    .sidebar-bottom { margin-top: auto; }
+    .location { border-top: 1px solid #355247; margin: 22px 7px 0; padding: 18px 5px 5px; display: flex; align-items: center; gap: 10px; }
+    .location-pin { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; background: #294a3d; color: #d1ed88; }
+    .location-pin svg { width: 16px; }
+    .location strong { display: block; font-size: 11px; font-weight: 600; }
+    .location span { color: #a9bdb4; font-size: 10px; }
+    .user-row { display: flex; align-items: center; gap: 10px; margin: 22px 7px 0; padding: 14px 3px 0; border-top: 1px solid #355247; }
+    .avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: #ead5c5; color: #684738; font-size: 11px; font-weight: 700; flex: 0 0 auto; }
+    .user-row strong { display: block; font-size: 11px; font-weight: 600; }
+    .user-row span { font-size: 10px; color: #a9bdb4; }
+    main { min-width: 0; padding: 0 42px 42px; }
+    .topbar { height: 75px; display: flex; justify-content: flex-end; align-items: center; gap: 18px; border-bottom: 1px solid var(--line); }
+    .live-status { display: inline-flex; align-items: center; gap: 8px; color: #5b6961; font-size: 11px; }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #51a878; box-shadow: 0 0 0 3px #e0f1e6; }
+    .icon-button { width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 9px; display: grid; place-items: center; background: var(--paper); color: #59645f; position: relative; }
+    .icon-button svg { width: 17px; height: 17px; }
+    .notice-dot { position: absolute; width: 7px; height: 7px; right: 7px; top: 7px; border-radius: 50%; background: var(--coral); border: 1px solid white; }
+    .top-avatar { width: 34px; height: 34px; }
+    .page { max-width: 1320px; margin: auto; }
+    .page-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; padding: 33px 0 24px; }
+    .eyebrow { text-transform: uppercase; letter-spacing: .14em; color: var(--green); font-weight: 700; font-size: 10px; margin-bottom: 8px; }
+    h1 { font-family: "DM Serif Display", Georgia, serif; letter-spacing: 0; font-size: 34px; line-height: 1.1; font-weight: 400; margin: 0; }
+    .subheading { color: var(--muted); font-size: 12px; margin: 8px 0 0; }
+    .heading-actions { display: flex; gap: 9px; align-items: center; }
+    .button { height: 39px; border-radius: 7px; padding: 0 13px; border: 1px solid var(--line); display: inline-flex; align-items: center; justify-content: center; gap: 8px; color: #45514b; background: #fff; font-size: 11px; font-weight: 600; white-space: nowrap; transition: background .18s, transform .18s; }
+    .button:hover { background: #f6f8f5; transform: translateY(-1px); }
+    .button svg { width: 15px; height: 15px; }
+    .button-primary { background: var(--green); color: white; border-color: var(--green); }
+    .button-primary:hover { background: var(--green-dark); }
+    .button-small { height: 31px; padding: 0 10px; font-size: 10px; }
+    .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .metric { min-height: 107px; background: var(--paper); border: 1px solid var(--line); border-radius: 9px; padding: 17px 17px 14px; position: relative; overflow: hidden; }
+    .metric-top { display: flex; align-items: center; justify-content: space-between; color: #77817b; font-size: 10px; }
+    .metric-icon { width: 27px; height: 27px; border-radius: 8px; display: grid; place-items: center; background: var(--green-pale); color: var(--green); }
+    .metric-icon svg { width: 14px; height: 14px; }
+    .metric:nth-child(2) .metric-icon { color: #b87818; background: var(--gold-pale); }
+    .metric:nth-child(3) .metric-icon { color: var(--coral); background: var(--coral-pale); }
+    .metric:nth-child(4) .metric-icon { color: #4e7b99; background: #eaf2f7; }
+    .metric-value { font-family: "DM Serif Display", Georgia, serif; font-size: 30px; line-height: 1; margin-top: 12px; }
+    .metric-note { position: absolute; right: 16px; bottom: 17px; color: #849087; font-size: 9px; }
+    .content-grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(270px, .85fr); gap: 15px; margin-top: 17px; align-items: start; }
+    .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 9px; min-width: 0; }
+    .panel-head { min-height: 61px; border-bottom: 1px solid var(--line); padding: 0 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .panel-title { font-size: 12px; font-weight: 700; }
+    .panel-caption { color: var(--muted); font-size: 10px; margin-top: 3px; }
+    .text-button { border: 0; background: transparent; color: var(--green); font-weight: 600; font-size: 10px; padding: 6px 0; white-space: nowrap; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; text-align: left; white-space: nowrap; }
+    th { height: 35px; padding: 0 12px; color: #8a948e; font-size: 9px; font-weight: 500; background: #fbfcfb; }
+    th:first-child, td:first-child { padding-left: 18px; }
+    td { height: 56px; border-top: 1px solid #f0f2ef; padding: 0 12px; font-size: 10px; color: #56615b; }
+    .person { display: flex; align-items: center; gap: 9px; }
+    .person .avatar { width: 29px; height: 29px; font-size: 9px; }
+    .person-name { color: var(--ink); font-size: 10px; font-weight: 600; }
+    .person-sub { color: #919a94; font-size: 9px; margin-top: 3px; }
+    .status { display: inline-flex; align-items: center; gap: 5px; border-radius: 20px; padding: 5px 8px; font-size: 9px; font-weight: 600; }
+    .status::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .status-expected { color: #a66a12; background: var(--gold-pale); }
+    .status-arrived { color: #27774f; background: var(--green-pale); }
+    .status-departed { color: #707a74; background: #f0f2ef; }
+    .row-action { border: 0; padding: 5px 0; background: transparent; color: var(--green); font-size: 9px; font-weight: 700; }
+    .row-action.depart { color: #7b8580; }
+    .empty-state { padding: 35px 20px; text-align: center; color: #87918b; font-size: 11px; }
+    .side-stack { display: grid; gap: 15px; }
+    .schedule-list { padding: 2px 17px 9px; }
+    .schedule-item { display: grid; grid-template-columns: 43px 1fr; gap: 10px; padding: 13px 0; border-bottom: 1px solid #f0f2ef; }
+    .schedule-item:last-child { border-bottom: 0; }
+    .schedule-time { font-size: 10px; color: #738078; padding-top: 2px; }
+    .schedule-time strong { display: block; color: var(--ink); font-size: 11px; }
+    .schedule-event { border-left: 2px solid #c7df8b; padding-left: 10px; min-width: 0; }
+    .schedule-event strong { display: block; font-size: 10px; font-weight: 600; }
+    .schedule-event span { display: block; font-size: 9px; color: #87918b; margin-top: 4px; }
+    .schedule-event .schedule-host { color: var(--green); }
+    .activity-list { padding: 7px 17px 12px; }
+    .activity-item { display: grid; grid-template-columns: 25px 1fr; gap: 9px; padding: 9px 0; }
+    .activity-marker { width: 24px; height: 24px; display: grid; place-items: center; background: var(--green-pale); color: var(--green); border-radius: 7px; }
+    .activity-marker svg { width: 12px; height: 12px; }
+    .activity-copy { color: #69746d; font-size: 9px; line-height: 1.55; }
+    .activity-copy strong { color: #35423b; font-weight: 600; }
+    .activity-copy time { display: block; color: #9aa29d; font-size: 9px; margin-top: 2px; }
+    .page-toolbar { display: flex; justify-content: space-between; gap: 12px; padding: 0 0 15px; }
+    .search-box { height: 37px; min-width: 220px; border: 1px solid var(--line); background: white; border-radius: 7px; display: flex; align-items: center; gap: 8px; padding: 0 10px; }
+    .search-box svg { width: 15px; height: 15px; color: #89928d; flex: 0 0 auto; }
+    .search-box input { border: 0; outline: 0; min-width: 0; width: 100%; color: var(--ink); font-size: 10px; }
+    .search-box input:focus-visible { outline: none; }
+    .select { height: 37px; border: 1px solid var(--line); background: white; border-radius: 7px; color: #536058; padding: 0 11px; font-size: 10px; }
+    .filter-group { display: flex; gap: 8px; }
+    .appointments-list { padding: 0 18px; }
+    .appointment { display: grid; grid-template-columns: 55px 1.3fr 1fr auto; align-items: center; min-height: 67px; gap: 12px; border-bottom: 1px solid #eef1ed; }
+    .appointment:last-child { border: 0; }
+    .appointment-time { color: var(--green); font-size: 11px; font-weight: 700; }
+    .appointment-name { color: var(--ink); font-size: 10px; font-weight: 600; }
+    .appointment-detail { font-size: 9px; color: #87918b; margin-top: 4px; }
+    .team-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .team-member { background: white; border: 1px solid var(--line); border-radius: 9px; padding: 17px; }
+    .team-person { display: flex; align-items: center; gap: 10px; }
+    .team-person .avatar { width: 36px; height: 36px; }
+    .team-person strong { display: block; font-size: 11px; }
+    .team-person span { display: block; color: #859088; font-size: 9px; margin-top: 4px; }
+    .team-meta { display: flex; justify-content: space-between; border-top: 1px solid #eff1ee; margin-top: 17px; padding-top: 12px; color: #7a857e; font-size: 9px; }
+    .team-state { display: flex; align-items: center; gap: 5px; color: #347b56; }
+    .team-state::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #58aa79; }
+    .notice { position: fixed; right: 24px; bottom: 22px; z-index: 20; max-width: min(360px, calc(100vw - 32px)); border-radius: 8px; padding: 13px 16px; color: white; background: #18352c; box-shadow: var(--shadow); font-size: 11px; opacity: 0; transform: translateY(12px); pointer-events: none; transition: opacity .2s, transform .2s; }
+    .notice.show { opacity: 1; transform: translateY(0); }
+    .app-footer { max-width: 1320px; margin: 20px auto 0; padding: 13px 0 0; border-top: 1px solid var(--line); color: #8a948e; font-size: 10px; }
+    .modal-backdrop { position: fixed; inset: 0; z-index: 30; background: rgba(18, 33, 27, .48); display: none; align-items: center; justify-content: center; padding: 18px; }
+    .modal-backdrop.open { display: flex; }
+    .modal { width: min(480px, 100%); background: white; border-radius: 11px; box-shadow: var(--shadow); animation: appear .18s ease-out; }
+    @keyframes appear { from { opacity: 0; transform: translateY(8px) scale(.99); } to { opacity: 1; transform: none; } }
+    .modal-head { padding: 20px 22px 16px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: flex-start; }
+    .modal-head h2 { font: 400 24px/1.15 "DM Serif Display", Georgia, serif; margin: 0; }
+    .modal-head p { margin: 5px 0 0; color: var(--muted); font-size: 10px; }
+    .modal-close { border: 0; background: transparent; color: #748078; padding: 2px; }
+    .modal-close svg { width: 18px; }
+    .form-grid { padding: 18px 22px 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .field { display: grid; gap: 6px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { color: #606c64; font-size: 10px; font-weight: 600; }
+    .field input, .field select { height: 38px; padding: 0 10px; border: 1px solid #e2e8e2; border-radius: 6px; background: white; color: var(--ink); font-size: 11px; min-width: 0; }
+    .form-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; padding-top: 6px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    @media (max-width: 1100px) {
+      .app { grid-template-columns: 72px minmax(0, 1fr); }
+      .sidebar { padding-left: 10px; padding-right: 10px; align-items: center; }
+      .brand { padding: 2px 0 34px; }
+      .brand-name, .brand-name small, .nav-label, .nav-link span:not(.nav-icon), .location > div, .user-row > div { display: none; }
+      .nav { width: 100%; }
+      .nav-link { justify-content: center; padding: 0; }
+      .nav-count { display: none; }
+      .location { margin: auto 0 0; padding: 17px 0 0; justify-content: center; }
+      .user-row { margin: 16px 0 0; padding: 14px 0 0; justify-content: center; }
+      main { padding-left: 28px; padding-right: 28px; }
+    }
+    @media (max-width: 850px) {
+      .content-grid { grid-template-columns: 1fr; }
+      .side-stack { grid-template-columns: 1fr 1fr; align-items: start; }
+      .team-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 600px) {
+      .app { display: block; padding-bottom: calc(63px + env(safe-area-inset-bottom)); }
+      .sidebar { position: sticky; top: 0; z-index: 10; min-height: 0; height: 62px; flex-direction: row; justify-content: space-between; padding: 0 15px; box-shadow: 0 1px 0 var(--line); }
+      .brand { padding: 0; }
+      .brand-name { display: block; font-size: 15px; }
+      .brand-name small { display: block; font-size: 9px; }
+      .brand-mark { width: 32px; height: 32px; }
+      .sidebar > .nav-label, .sidebar-bottom { display: none; }
+      .sidebar > .nav { display: flex; position: fixed; inset: auto 0 0; z-index: 15; height: calc(63px + env(safe-area-inset-bottom)); align-items: center; justify-content: space-around; gap: 0; padding: 4px 5px env(safe-area-inset-bottom); background: #18352c; border-top: 1px solid #355247; }
+      .sidebar > .nav .nav-link { flex: 1; flex-direction: column; justify-content: center; gap: 3px; min-height: 49px; padding: 3px 1px; text-align: center; font-size: 9px; }
+      .sidebar > .nav .nav-link span:not(.nav-icon) { display: block; }
+      .sidebar > .nav .nav-link.active { box-shadow: inset 0 2px #c9e878; }
+      .sidebar > .nav .nav-icon { width: 17px; height: 17px; }
+      .sidebar::after { content: ""; width: 35px; height: 35px; position: absolute; right: 16px; top: 13px; border-radius: 50%; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Ccircle cx='18' cy='18' r='18' fill='%23ead5c5'/%3E%3Ctext x='18' y='22' text-anchor='middle' font-family='sans-serif' font-size='10' font-weight='700' fill='%23684738'%3ECM%3C/text%3E%3C/svg%3E") center/cover; }
+      .sidebar::before { content: ""; position: absolute; right: 62px; top: 13px; height: 35px; width: 35px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='10' fill='%23fff' stroke='%23e7ebe6'/%3E%3Cpath d='M18 9v9l6 4' fill='none' stroke='%2359645f' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='18' cy='18' r='11' fill='none' stroke='%2359645f' stroke-width='1.7'/%3E%3Ccircle cx='27' cy='9' r='3' fill='%23e36e59' stroke='white'/%3E%3C/svg%3E") center/cover; }
+      .sidebar::before { display: none; }
+      main { padding: 0 16px 28px; }
+      .topbar { height: 49px; justify-content: flex-start; border: 0; }
+      .topbar .top-avatar { display: none; }
+      .page-heading { align-items: flex-start; flex-direction: column; gap: 15px; padding: 13px 0 19px; }
+      h1 { font-size: 30px; }
+      .heading-actions { width: 100%; }
+      .heading-actions .button-primary { flex: 1; }
+      .metric-grid { gap: 8px; }
+      .metric { min-height: 99px; padding: 13px; }
+      .metric-value { font-size: 27px; margin-top: 11px; }
+      .metric-note { right: 12px; bottom: 16px; font-size: 8px; }
+      .metric-top { font-size: 9px; }
+      .side-stack { grid-template-columns: 1fr; }
+      .panel-head { padding: 0 13px; }
+      td { padding: 0 9px; }
+      th { padding: 0 9px; }
+      th:first-child, td:first-child { padding-left: 13px; }
+      .page-toolbar { flex-direction: column; }
+      .search-box { width: 100%; min-width: 0; }
+      .filter-group { width: 100%; }
+      .filter-group .select { flex: 1; min-width: 0; }
+      .appointment { grid-template-columns: 43px 1fr auto; gap: 8px; }
+      .appointment > :nth-child(3) { display: none; }
+      .appointments-list { padding: 0 12px; }
+      .team-grid { grid-template-columns: 1fr; }
+      .form-grid { padding: 16px; }
+      .modal-head { padding: 18px 16px 14px; }
+      .button { padding: 0 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" aria-label="Navigation principale">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17.5 12 4l8 13.5H4Z"/><path d="M9 17.5 12 12l3 5.5"/></svg></div>
+        <div class="brand-name">Kethia Accueil<small>GESTION DES VISITES</small></div>
+      </div>
+      <div class="nav-label">Espace de travail</div>
+      <nav class="nav" aria-label="Pages">
+        <button class="nav-link active" data-page="overview"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="11" width="7" height="10" rx="1.5"/><rect x="3" y="14" width="8" height="7" rx="1.5"/></svg><span>Vue d’ensemble</span></button>
+        <button class="nav-link" data-page="visitors"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.5-3.5 2.7-5.5 6.5-5.5s6 2 6.5 5.5M17 5.5a3 3 0 0 1 0 5.8M17 15c2.5.3 4 2 4.5 4.5"/></svg><span>Visiteurs</span><span class="nav-count" id="nav-visitors">0</span></button>
+        <button class="nav-link" data-page="appointments"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18M8 14h3m-3 3h6"/></svg><span>Rendez-vous</span></button>
+        <button class="nav-link" data-page="team"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><circle cx="17" cy="9" r="2.5"/><path d="M2.5 20c.5-3.5 2.7-5.5 6.5-5.5s6 2 6.5 5.5M15 15c3.5-.2 5.5 1.5 6 4"/></svg><span>Équipe</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="location"><div class="location-pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></div><div><strong>La Fabrique</strong><span>Paris 11e · Site principal</span></div></div>
+        <div class="user-row"><div class="avatar">CM</div><div><strong>Camille Moreau</strong><span>Responsable accueil</span></div></div>
+      </div>
+    </aside>
+    <main>
+      <header class="topbar">
+        <span class="live-status"><span class="live-dot"></span>Accueil ouvert</span>
+        <button class="icon-button" id="notificationButton" aria-label="Notifications" title="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><i class="notice-dot"></i></button>
+        <div class="avatar top-avatar" aria-label="Camille Moreau">CM</div>
+      </header>
+      <div class="page" id="pageContent"></div>
+      <footer class="app-footer">© <span id="copyrightYear"></span> Kethia Accueil. Tous droits réservés.</footer>
+    </main>
+  </div>
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <section class="modal">
+      <div class="modal-head"><div><h2 id="modalTitle">Nouveau visiteur</h2><p>Ajoutez une personne à la liste du jour.</p></div><button class="modal-close" id="closeModal" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+      <form class="form-grid" id="visitorForm">
+        <div class="field"><label for="visitorName">Nom complet *</label><input id="visitorName" name="name" placeholder="Ex. Léa Bernard" required maxlength="70"></div>
+        <div class="field"><label for="visitorCompany">Organisation</label><input id="visitorCompany" name="company" placeholder="Ex. Studio Nord" maxlength="70"></div>
+        <div class="field"><label for="visitorHost">Personne visitée *</label><select id="visitorHost" name="host" required><option value="">Choisir une personne</option><option>Camille Moreau</option><option>Thomas Leroy</option><option>Inès Petit</option><option>Hugo Martin</option><option>Sarah Diallo</option></select></div>
+        <div class="field"><label for="visitorTime">Heure d’arrivée</label><input id="visitorTime" name="time" type="time" required></div>
+        <div class="field full"><label for="visitorPurpose">Motif de la visite</label><input id="visitorPurpose" name="purpose" placeholder="Ex. Réunion de projet" maxlength="100"></div>
+        <div class="form-actions"><button class="button" type="button" id="cancelModal">Annuler</button><button class="button button-primary" type="submit">Ajouter à la liste</button></div>
+      </form>
+    </section>
+  </div>
+  <div class="notice" id="toast" role="status" aria-live="polite"></div>
+  <script>
+    const today = new Date();
+    document.getElementById('copyrightYear').textContent = today.getFullYear();
+    const dateLabel = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(today);
+    const defaultVisitors = [
+      { id: 1, name: 'Élodie Garnier', company: 'Maison Arlo', host: 'Thomas Leroy', purpose: 'Présentation produit', time: '09:15', status: 'arrived', color: '#ead5c5', initials: 'EG' },
+      { id: 2, name: 'Malik Benali', company: 'Indépendant', host: 'Camille Moreau', purpose: 'Rendez-vous partenaire', time: '09:40', status: 'arrived', color: '#d5e1ef', initials: 'MB' },
+      { id: 3, name: 'Clara Dubois', company: 'Atelier Cobalt', host: 'Inès Petit', purpose: 'Entretien', time: '10:00', status: 'expected', color: '#eddfb9', initials: 'CD' },
+      { id: 4, name: 'Yanis Rousseau', company: 'Collectif Lien', host: 'Hugo Martin', purpose: 'Réunion de projet', time: '10:30', status: 'expected', color: '#e9cfc9', initials: 'YR' },
+      { id: 5, name: 'Jeanne Lefèvre', company: 'Studio Sillage', host: 'Sarah Diallo', purpose: 'Visite des locaux', time: '11:00', status: 'expected', color: '#d5e6da', initials: 'JL' }
+    ];
+    const appointments = [
+      { time: '09:15', name: 'Élodie Garnier', company: 'Maison Arlo', host: 'Thomas Leroy', purpose: 'Présentation produit', status: 'arrived' },
+      { time: '09:40', name: 'Malik Benali', company: 'Indépendant', host: 'Camille Moreau', purpose: 'Rendez-vous partenaire', status: 'arrived' },
+      { time: '10:00', name: 'Clara Dubois', company: 'Atelier Cobalt', host: 'Inès Petit', purpose: 'Entretien', status: 'expected' },
+      { time: '10:30', name: 'Yanis Rousseau', company: 'Collectif Lien', host: 'Hugo Martin', purpose: 'Réunion de projet', status: 'expected' },
+      { time: '11:00', name: 'Jeanne Lefèvre', company: 'Studio Sillage', host: 'Sarah Diallo', purpose: 'Visite des locaux', status: 'expected' },
+      { time: '13:30', name: 'Nora Petit', company: 'Ligne Claire', host: 'Camille Moreau', purpose: 'Point de suivi', status: 'expected' },
+      { time: '14:15', name: 'Arthur Colin', company: 'Bureau Commun', host: 'Thomas Leroy', purpose: 'Atelier de travail', status: 'expected' }
+    ];
+    let visitors;
+    try { visitors = JSON.parse(localStorage.getItem('hora-visitors')) || defaultVisitors; } catch { visitors = defaultVisitors; }
+    let activity = [{ name: 'Malik Benali', action: 'est arrivé', time: '09:40' }, { name: 'Élodie Garnier', action: 'est arrivée', time: '09:15' }, { name: 'Accueil ouvert', action: 'prise de poste par Camille', time: '08:52' }];
+    let activePage = 'overview';
+    let searchQuery = '';
+    let statusFilter = 'all';
+    let toastTimer;
+    const pageContent = document.getElementById('pageContent');
+    const toast = document.getElementById('toast');
+    const icon = (name) => ({
+      people: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.5-3.5 2.7-5.5 6.5-5.5s6 2 6.5 5.5M17 5.5a3 3 0 0 1 0 5.8M17 15c2.5.3 4 2 4.5 4.5"/></svg>',
+      check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m5 12 4 4L19 6"/></svg>',
+      alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3 2.8 20h18.4L12 3Z"/><path d="M12 9v5m0 3h.01"/></svg>',
+      clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+      plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>',
+      search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>'
+    })[name];
+    const statusLabel = (status) => ({ expected: 'Attendu', arrived: 'Sur place', departed: 'Parti' })[status];
+    const statusPill = (status) => `<span class="status status-${status}">${statusLabel(status)}</span>`;
+    const avatar = (person) => `<span class="avatar" style="background:${person.color || '#e4dfd0'};color:#435148">${person.initials || person.name.split(' ').map(part => part[0]).slice(0, 2).join('').toUpperCase()}</span>`;
+    function save() { localStorage.setItem('hora-visitors', JSON.stringify(visitors)); }
+    function notify(message) { toast.textContent = message; toast.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 3000); }
+    function updateNav() { document.getElementById('nav-visitors').textContent = visitors.filter(person => person.status !== 'departed').length; }
+    function visitorRow(person) {
+      const action = person.status === 'expected' ? `<button class="row-action" data-action="arrive" data-id="${person.id}">Enregistrer l’arrivée</button>` : person.status === 'arrived' ? `<button class="row-action depart" data-action="depart" data-id="${person.id}">Départ</button>` : '<span style="color:#a0a8a3;font-size:9px">Clôturé</span>';
+      return `<tr><td><div class="person">${avatar(person)}<div><div class="person-name">${person.name}</div><div class="person-sub">${person.company || 'Visiteur'}</div></div></div></td><td>${person.time}</td><td>${person.host}</td><td>${statusPill(person.status)}</td><td>${action}</td></tr>`;
+    }
+    function appointmentRow(appointment) {
+      const visitor = visitors.find(person => person.name === appointment.name);
+      const status = visitor?.status || appointment.status;
+      const action = status === 'expected' ? `<button class="row-action" data-action="arrive" data-appointment="${appointment.name}">Enregistrer l’arrivée</button>` : status === 'arrived' ? `<button class="row-action depart" data-action="depart" data-appointment="${appointment.name}">Départ</button>` : '<span style="color:#a0a8a3;font-size:9px">Clôturé</span>';
+      return `<div class="appointment"><div class="appointment-time">${appointment.time}</div><div><div class="appointment-name">${appointment.name} · ${appointment.company}</div><div class="appointment-detail">${appointment.purpose}</div></div><div><div class="appointment-name">${appointment.host}</div><div class="appointment-detail">Personne visitée</div></div>${statusPill(status)}${action}</div>`;
+    }
+    function visitorsTable(list, heading = 'Mouvements du jour') {
+      return `<section class="panel"><div class="panel-head"><div><div class="panel-title">${heading}</div><div class="panel-caption">${list.length} visiteur${list.length > 1 ? 's' : ''} dans la liste</div></div><button class="text-button" data-go="visitors">Tout voir&nbsp; →</button></div><div class="table-wrap"><table><thead><tr><th>VISITEUR</th><th>ARRIVÉE</th><th>PERSONNE VISITÉE</th><th>STATUT</th><th></th></tr></thead><tbody>${list.length ? list.map(visitorRow).join('') : '<tr><td colspan="5"><div class="empty-state">Aucun visiteur ne correspond à cette recherche.</div></td></tr>'}</tbody></table></div></section>`;
+    }
+    function renderOverview() {
+      const expected = visitors.filter(person => person.status === 'expected').length;
+      const arrived = visitors.filter(person => person.status === 'arrived').length;
+      const nextArrival = visitors.filter(person => person.status === 'expected').sort((a, b) => a.time.localeCompare(b.time))[0];
+      const shown = visitors.filter(person => person.status !== 'departed').slice(0, 5);
+      const activities = activity.slice(0, 4).map(item => `<div class="activity-item"><div class="activity-marker">${icon('check')}</div><div class="activity-copy"><strong>${item.name}</strong> ${item.action}<time>${item.time}</time></div></div>`).join('');
+      return `<div class="page-heading"><div><div class="eyebrow">${dateLabel}</div><h1>Bonjour, Camille</h1><p class="subheading">Voici ce qui se passe à l’accueil aujourd’hui.</p></div><div class="heading-actions"><button class="button" data-go="appointments">${icon('clock')} Planning</button><button class="button button-primary" data-open-modal>${icon('plus')} Ajouter un visiteur</button></div></div>
+        <section class="metric-grid" aria-label="Indicateurs du jour">
+          <article class="metric"><div class="metric-top"><span>Visites prévues</span><span class="metric-icon">${icon('people')}</span></div><div class="metric-value">${visitors.length}</div><span class="metric-note">inscrites aujourd’hui</span></article>
+          <article class="metric"><div class="metric-top"><span>Déjà sur place</span><span class="metric-icon">${icon('check')}</span></div><div class="metric-value">${arrived}</div><span class="metric-note">arrivées confirmées</span></article>
+          <article class="metric"><div class="metric-top"><span>À accueillir</span><span class="metric-icon">${icon('alert')}</span></div><div class="metric-value">${expected}</div><span class="metric-note">${nextArrival ? `prochaine arrivée à ${nextArrival.time}` : 'aucune arrivée en attente'}</span></article>
+          <article class="metric"><div class="metric-top"><span>Temps d’accueil</span><span class="metric-icon">${icon('clock')}</span></div><div class="metric-value">1<span style="font-size:18px">m</span> 24</div><span class="metric-note">moyenne cette semaine</span></article>
+        </section>
+        <div class="content-grid">${visitorsTable(shown)}<div class="side-stack"><section class="panel"><div class="panel-head"><div><div class="panel-title">À venir</div><div class="panel-caption">Les prochains rendez-vous</div></div><button class="text-button" data-go="appointments">Planning&nbsp; →</button></div><div class="schedule-list">${appointments.slice(2, 5).map(item => `<div class="schedule-item"><div class="schedule-time"><strong>${item.time}</strong></div><div class="schedule-event"><strong>${item.name} · ${item.company}</strong><span>${item.purpose}</span><span class="schedule-host">Avec ${item.host.split(' ')[0]}</span></div></div>`).join('')}</div></section>
+        <section class="panel"><div class="panel-head"><div><div class="panel-title">Journal d’accueil</div><div class="panel-caption">Activité récente</div></div><span class="live-status"><span class="live-dot"></span>En direct</span></div><div class="activity-list">${activities}</div></section></div></div>`;
+    }
+    function renderVisitors() {
+      let list = visitors.filter(person => person.name.toLowerCase().includes(searchQuery) || (person.company || '').toLowerCase().includes(searchQuery) || person.host.toLowerCase().includes(searchQuery));
+      if (statusFilter !== 'all') list = list.filter(person => person.status === statusFilter);
+      list.sort((a, b) => a.time.localeCompare(b.time));
+      return `<div class="page-heading"><div><div class="eyebrow">Gestion des entrées</div><h1>Visiteurs</h1><p class="subheading">Suivez les arrivées et les départs de votre site.</p></div><div class="heading-actions"><button class="button button-primary" data-open-modal>${icon('plus')} Ajouter un visiteur</button></div></div>
+        <div class="page-toolbar"><label class="search-box">${icon('search')}<span class="sr-only">Rechercher un visiteur</span><input id="visitorSearch" type="search" placeholder="Nom, organisation, hôte…" value="${searchQuery.replaceAll('&', '&amp;').replaceAll('"', '&quot;')}"></label><div class="filter-group"><select class="select" id="statusFilter" aria-label="Filtrer par statut"><option value="all" ${statusFilter === 'all' ? 'selected' : ''}>Tous les statuts</option><option value="expected" ${statusFilter === 'expected' ? 'selected' : ''}>Attendus</option><option value="arrived" ${statusFilter === 'arrived' ? 'selected' : ''}>Sur place</option><option value="departed" ${statusFilter === 'departed' ? 'selected' : ''}>Partis</option></select></div></div>
+        ${visitorsTable(list, 'Tous les visiteurs')}`;
+    }
+    function renderAppointments() {
+      return `<div class="page-heading"><div><div class="eyebrow">${dateLabel}</div><h1>Rendez-vous</h1><p class="subheading">Le programme des visites prévues aujourd’hui.</p></div><div class="heading-actions"><button class="button button-primary" data-open-modal>${icon('plus')} Ajouter un visiteur</button></div></div>
+        <section class="panel"><div class="panel-head"><div><div class="panel-title">Planning du jour</div><div class="panel-caption">${appointments.length} rendez-vous · La Fabrique, Paris 11e</div></div><span class="live-status"><span class="live-dot"></span>Accueil ouvert</span></div><div class="appointments-list">${appointments.map(appointmentRow).join('')}</div></section>`;
+    }
+    function renderTeam() {
+      const people = [
+        { name: 'Camille Moreau', role: 'Responsable accueil', initials: 'CM', color: '#ead5c5', hours: '08:30 — 17:30', state: 'À l’accueil' },
+        { name: 'Thomas Leroy', role: 'Direction des opérations', initials: 'TL', color: '#d5e1ef', hours: '09:00 — 18:00', state: 'Sur site' },
+        { name: 'Inès Petit', role: 'Design produit', initials: 'IP', color: '#eddfb9', hours: '09:00 — 17:00', state: 'Sur site' },
+        { name: 'Hugo Martin', role: 'Partenariats', initials: 'HM', color: '#e9cfc9', hours: '09:30 — 18:30', state: 'Sur site' },
+        { name: 'Sarah Diallo', role: 'Ressources humaines', initials: 'SD', color: '#d5e6da', hours: '08:30 — 17:00', state: 'Sur site' }
+      ];
+      return `<div class="page-heading"><div><div class="eyebrow">La Fabrique · Paris 11e</div><h1>Équipe</h1><p class="subheading">Les personnes disponibles pour accueillir vos visiteurs.</p></div></div><div class="team-grid">${people.map(person => `<article class="team-member"><div class="team-person">${avatar(person)}<div><strong>${person.name}</strong><span>${person.role}</span></div></div><div class="team-meta"><span>${person.hours}</span><span class="team-state">${person.state}</span></div></article>`).join('')}</div>`;
+    }
+    function render() {
+      updateNav();
+      pageContent.innerHTML = ({ overview: renderOverview, visitors: renderVisitors, appointments: renderAppointments, team: renderTeam })[activePage]();
+    }
+    function setPage(page) {
+      activePage = page;
+      document.querySelectorAll('.nav-link').forEach(button => button.classList.toggle('active', button.dataset.page === page));
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    const modal = document.getElementById('modalBackdrop');
+    function openModal() {
+      document.getElementById('visitorTime').value = new Date().toTimeString().slice(0, 5);
+      modal.classList.add('open');
+      setTimeout(() => document.getElementById('visitorName').focus(), 0);
+    }
+    function closeModal() { modal.classList.remove('open'); }
+    document.addEventListener('click', (event) => {
+      const pageButton = event.target.closest('[data-page]');
+      if (pageButton) setPage(pageButton.dataset.page);
+      const goButton = event.target.closest('[data-go]');
+      if (goButton) setPage(goButton.dataset.go);
+      if (event.target.closest('[data-open-modal]')) openModal();
+      const actionButton = event.target.closest('[data-action]');
+      if (actionButton) {
+        if (actionButton.dataset.appointment) {
+          const appointment = appointments.find(item => item.name === actionButton.dataset.appointment);
+          if (!appointment) return;
+          let person = visitors.find(item => item.name === appointment.name);
+          if (!person) {
+            person = { id: Date.now(), ...appointment, color: '#dce8df', initials: appointment.name.split(/\s+/).map(part => part[0]).slice(0, 2).join('').toUpperCase() };
+            visitors.push(person);
+          }
+          person.status = actionButton.dataset.action === 'arrive' ? 'arrived' : 'departed';
+          activity.unshift({ name: person.name, action: person.status === 'arrived' ? 'est arrivé·e' : 'a terminé sa visite', time: new Date().toTimeString().slice(0, 5) });
+          save(); render();
+          notify(person.status === 'arrived' ? `Arrivée de ${person.name} enregistrée.` : `Départ de ${person.name} enregistré.`);
+          return;
+        }
+        const person = visitors.find(item => String(item.id) === actionButton.dataset.id);
+        if (!person) return;
+        if (actionButton.dataset.action === 'arrive') {
+          person.status = 'arrived';
+          activity.unshift({ name: person.name, action: 'est arrivé·e · hôte prévenu', time: new Date().toTimeString().slice(0, 5) });
+          notify(`${person.name} est arrivé·e. L’accueil a été mis à jour.`);
+        } else {
+          person.status = 'departed';
+          activity.unshift({ name: person.name, action: 'a terminé sa visite', time: new Date().toTimeString().slice(0, 5) });
+          notify(`Départ de ${person.name} enregistré.`);
+        }
+        save(); render();
+      }
+    });
+    document.getElementById('closeModal').addEventListener('click', closeModal);
+    document.getElementById('cancelModal').addEventListener('click', closeModal);
+    modal.addEventListener('click', event => { if (event.target === modal) closeModal(); });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') closeModal(); });
+    document.getElementById('visitorForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const form = new FormData(event.currentTarget);
+      const name = String(form.get('name')).trim();
+      const person = { id: Date.now(), name, company: String(form.get('company')).trim() || 'Visiteur', host: String(form.get('host')), purpose: String(form.get('purpose')).trim() || 'Visite', time: String(form.get('time')), status: 'expected', color: '#dce8df', initials: name.split(/\s+/).map(part => part[0]).slice(0, 2).join('').toUpperCase() };
+      visitors.push(person);
+      appointments.push({ time: person.time, name: person.name, company: person.company, host: person.host, purpose: person.purpose, status: 'expected' });
+      save(); closeModal(); event.currentTarget.reset();
+      setPage('visitors');
+      notify(`${person.name} a été ajouté·e à la liste.`);
+    });
+    document.getElementById('notificationButton').addEventListener('click', () => notify('Tout est à jour. Aucune nouvelle notification.'));
+    pageContent.addEventListener('input', event => {
+      if (event.target.id === 'visitorSearch') {
+        const cursor = event.target.selectionStart;
+        searchQuery = event.target.value.toLowerCase().trim();
+        render();
+        const field = document.getElementById('visitorSearch'); field.focus(); field.setSelectionRange(cursor, cursor);
+      }
+    });
+    pageContent.addEventListener('change', event => {
+      if (event.target.id === 'statusFilter') { statusFilter = event.target.value; render(); }
+    });
+    render();
+  </script>
+</body>
+</html>
